@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{transaction.transaction_hash}}</title>
+	<style>
+		th {
+		   border: 1px solid grey;
+		}
+		td {
+		   border: 1px solid grey;
+		}
+		div {
+		  margin: 24px;
+		  text-align: center;
+		  padding: 10px;
+		}
+		.trans_table{
+			text-align: center;
+			width: 100%;
+			border: 1px solid grey;
+			margin: auto;
+		}
+	</style>
+</head>
+<body>
+		<div style="text-align: center;">
+			<table class="trans_table">
+				<caption>Детали транзакции</caption>
+				    <tr>
+					    <th>Транзакция: {{transaction.transaction_hash}}</th>
+				    </tr>
+                <tr><td>Сумма транзакции : {{transaction.transaction_sum}} BCS</td></tr>
+				<tr><td>Описание : {{transaction.transaction_description}}</td></tr>
+			</table>
+		</div>
+<script>
+
+</script>
+</body>
+</html>

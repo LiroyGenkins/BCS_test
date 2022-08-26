@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block transaction %}
+
+    {% if transaction_list %}
+
+        {% for t in transaction_list %}
+            <tr><td><a href="{% url 'transact:detail' t.id %}">{{t.transaction_hash}}</a></td></tr>
+        {% endfor %}
+
+    {% else %}
+        <tr><td>Транзакций пока нет</td></tr>
+    {% endif %}
+
+{% endblock %}
+

@@ -1,0 +1,7 @@
+from django.apps import AppConfig
+
+
+class TransactConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'transact'
+    verbose_name = 'Транзакции'
