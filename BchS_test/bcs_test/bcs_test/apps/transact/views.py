@@ -1,18 +1,11 @@
 from django.http import Http404, HttpResponse
 from django.shortcuts import render
-import requests, json
-import io
-from pycoin.coins.Tx import Tx
-from pycoin.encoding.hexbytes import b2h, b2h_rev, h2b
-from pycoin.networks.bitcoinish import create_bitcoinish_network
-network = create_bitcoinish_network(symbol="BCS", network_name="Blockchain Solutions",
-subnet_name="mainnet", wif_prefix_hex="80", address_prefix_hex="19",
-pay_to_script_prefix_hex="32", bip32_prv_prefix_hex="0488ade4",
-bip32_pub_prefix_hex="0488B21E", bech32_hrp="bc", bip49_prv_prefix_hex="049d7878",
-bip49_pub_prefix_hex="049D7CB2", bip84_prv_prefix_hex="04b2430c",
-bip84_pub_prefix_hex="04B24746", magic_header_hex="F1CFA6D3", default_port=3666)
-
-from.models import Transaction
+import requests
+import json
+from pycoin.solve.utils import build_hash160_lookup
+from pycoin.ecdsa.secp256k1 import secp256k1_generator
+from .models import Transaction
+from . import create_transaction
 
 def index(request):
     transaction_list = Transaction.objects.all()
@@ -27,7 +20,6 @@ def detail(request, transaction_id):
     return render(request, 'transact/detail.html', {'transaction': t})
 
 def transaction_send(request):
-    # тут должна быть вся магия
     url = "http://45.32.232.25:3669/wallet/testwallet"
     rpc_user = 'bcs_tester'
     rpc_password = 'iLoveBCS'
@@ -35,5 +27,17 @@ def transaction_send(request):
     headers = {'content-type': "application/json", 'cache-control': "no-cache"}
     response = requests.request("POST", url, data=payload, headers=headers, auth=(rpc_user, rpc_password))
     address = json.loads(response.text)['result']
+
+    tx_sum = 1000000
+    tx = create_transaction.New_tx(address)
+
+    signed_tx, signed_hex = tx.create_tx(satoshi_value=tx_sum, solver_f=build_hash160_lookup, generator=secp256k1_generator)
+    print(signed_tx)
+    print(signed_hex)
+    payload = json.dumps({"method": "sendrawtransaction", "params": [signed_hex]})
+    response = requests.request("POST", url, data=payload, headers=headers, auth=(rpc_user, rpc_password))
+
+    tx_to_db = Transaction(transaction_id = json.loads(response.text)['txid'], transaction_sum = tx_sum, transaction_description = "")
+    tx_to_db.save()
 
     return index(request)
